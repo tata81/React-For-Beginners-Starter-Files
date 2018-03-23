@@ -17,11 +17,22 @@ class App extends React.Component {
     
     componentDidMount() {
         const { params } = this.props.match;
+        // Reinstate the local storage - after ComponentDidUpdate step
+        const localStorageRef = localStorage.getItem(params.storeId);
+        if(localStorageRef) {
+            this.setState({ order : JSON.parse(localStorageRef) });
+        }
         this.ref = base.syncState(`${params.storeId}/fishes`, {
             context: this,
             state: "fishes"
         });        
     }
+
+    componentDidUpdate() {
+        const { params } = this.props.match;
+        localStorage.setItem(params.storeId, JSON.stringify(this.state.order));
+    }
+
     componentWillUnmount() {
         base.removeBinding(this.ref);
     }
@@ -71,6 +82,7 @@ class App extends React.Component {
                 <Inventory 
                     addFish={this.addFish} 
                     loadSampleFishes={this.loadSampleFishes}
+                    fishes = {this.state.fishes}
                 />
             </div>
         );
