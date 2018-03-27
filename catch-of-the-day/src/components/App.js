@@ -1,11 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Header from './Header';
 import Inventory from './Inventory';
 import Order from './Order';
 import Fish from './Fish';
 
-import { getFunName } from '../helpers';
 import sampleFishes from '../sample-fishes';  
 import base from '../base';
 
@@ -14,6 +14,10 @@ class App extends React.Component {
         fishes : {},
         order: {},
     }
+
+    static propTypes = {
+        match : PropTypes.object
+    }  
     
     componentDidMount() {
         const { params } = this.props.match;
@@ -43,7 +47,7 @@ class App extends React.Component {
         // 2. Add our new fishes to the fishes variable
         fishes[`fish${Date.now()}`] = fish;
         // 3. Set the new fishes object to state
-        this.setState({fishes});
+        this.setState({fishes: fishes});
     };
 
     loadSampleFishes = () => {
@@ -58,12 +62,33 @@ class App extends React.Component {
         // 3. Call setState to update our state object
         this.setState({order: order });
     };
+    
+    updateFish = (key, updateFish) => {
+        const fishes = {...this.state.fishes};
+        // Update that state
+        fishes[key] = updateFish;
+        // Set the updatefish to the state
+        this.setState({fishes: fishes});
+        
+    };
+
+    deleteFish = (key) => {
+        const fishes = {...this.state.fishes};
+        fishes[key] = null;
+        this.setState({fishes : fishes});
+    };
+
+    removeFromOrder = (key) => {
+        const order = {...this.state.order};
+        delete order[key] ;
+        this.setState({order : order});
+    };
 
     render() {
         return (
             <div className="catch-of-the-day">
                 <div className="menu">
-                    <Header quote={getFunName()}/>
+                    <Header quote="Fresh Sea Food"/>
                     <ul className="fishes">
                         {Object.keys(this.state.fishes).map(key => 
                             <Fish 
@@ -78,11 +103,14 @@ class App extends React.Component {
                 <Order 
                     fishes={this.state.fishes} 
                     order={this.state.order}
+                    removeFromOrder = {this.removeFromOrder}
                 />
                 <Inventory 
                     addFish={this.addFish} 
                     loadSampleFishes={this.loadSampleFishes}
                     fishes = {this.state.fishes}
+                    updateFish = {this.updateFish}
+                    deleteFish = {this.deleteFish}
                 />
             </div>
         );
